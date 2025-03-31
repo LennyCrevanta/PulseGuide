@@ -57,7 +57,7 @@ export default function AdminPage() {
   };
   
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto bg-white min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Aggregate Risk Monitoring Dashboard</h1>
         <div className="space-x-4">
@@ -97,11 +97,11 @@ export default function AdminPage() {
                   <td className="py-3 px-4 text-sm text-gray-500">
                     {new Date(log.timestamp).toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 text-sm">
+                  <td className="py-3 px-4 text-sm text-gray-800">
                     {log.query.substring(0, 30)}
                     {log.query.length > 30 ? "..." : ""}
                   </td>
-                  <td className="py-3 px-4 text-sm">
+                  <td className="py-3 px-4 text-sm text-gray-800">
                     {log.response.substring(0, 30)}
                     {log.response.length > 30 ? "..." : ""}
                   </td>
@@ -110,7 +110,7 @@ export default function AdminPage() {
                       {getRiskLevelLabel(log.riskScore)}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm">
+                  <td className="py-3 px-4 text-sm text-gray-800">
                     {log.triggers.join(", ")}
                   </td>
                   <td className="py-3 px-4 text-sm text-gray-500">
@@ -131,7 +131,7 @@ export default function AdminPage() {
       )}
       
       <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">Risk Level Summary</h2>
+        <h2 className="text-lg font-semibold mb-2 text-gray-800">Risk Level Summary</h2>
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-green-50 border border-green-100 rounded-lg p-4">
             <div className="text-3xl font-bold text-green-700">
