@@ -17,7 +17,7 @@ const employeeData = {
     jobTitle: 'Senior Marketing Manager',
     planType: 'HMO',
     description: 'Having a baby (9 months of in-network pre-natal care and hospital delivery)',
-    imgSrc: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80',
+    imgSrc: 'https://images.unsplash.com/photo-1592598015799-35c84b09394c?format=auto&fit=crop&q=80',
     planDetails: {
       deductible: '$1,000',
       specialist_copay: '$45',
