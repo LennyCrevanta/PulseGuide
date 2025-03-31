@@ -1,4 +1,4 @@
-import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { StreamingTextResponse } from 'ai';
 import OpenAI from 'openai';
 
 // Create an OpenAI API client
@@ -111,6 +111,27 @@ const EMPLOYEE_HEALTH_INFO = {
   }
 };
 
+// Custom function to convert OpenAI stream to ReadableStream
+async function* streamIterator(stream: any) {
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || '';
+    if (content) {
+      yield content;
+    }
+  }
+}
+
+function createReadableStream(iterator: AsyncIterableIterator<string>): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    async start(controller) {
+      for await (const chunk of iterator) {
+        controller.enqueue(new TextEncoder().encode(chunk));
+      }
+      controller.close();
+    },
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const { messages, id, employeeProfile } = await req.json();
@@ -165,11 +186,12 @@ Plan details for ${employeeProfile.plan} (${planInfo.name}):
       ],
     });
 
-    // Convert the response into a friendly text-stream
-    const stream = OpenAIStream(response);
+    // Create a stream manually to avoid type incompatibility
+    const iterator = streamIterator(response);
+    const readableStream = createReadableStream(iterator);
 
-    // Respond with the stream
-    return new StreamingTextResponse(stream, {
+    // Return the stream with headers
+    return new StreamingTextResponse(readableStream, {
       headers: {
         'x-conversation-id': id || 'default',
       },

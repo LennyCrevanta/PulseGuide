@@ -1,4 +1,4 @@
-import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { StreamingTextResponse } from 'ai';
 import OpenAI from 'openai';
 import { getContextForQuery } from '@/lib/rag/benefitsData';
 
@@ -8,6 +8,27 @@ const openai = new OpenAI({
 });
 
 export const runtime = 'edge';
+
+// Custom function to convert OpenAI stream to ReadableStream
+async function* streamIterator(stream: any) {
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || '';
+    if (content) {
+      yield content;
+    }
+  }
+}
+
+function createReadableStream(iterator: AsyncIterableIterator<string>): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    async start(controller) {
+      for await (const chunk of iterator) {
+        controller.enqueue(new TextEncoder().encode(chunk));
+      }
+      controller.close();
+    },
+  });
+}
 
 export async function POST(req: Request) {
   try {
@@ -74,8 +95,9 @@ If you don't know the answer, be honest and offer to help find the information o
       stream: true,
     });
 
-    // Use the built-in OpenAIStream
-    const stream = OpenAIStream(response as any);
+    // Create a stream manually to avoid type incompatibility
+    const iterator = streamIterator(response);
+    const readableStream = createReadableStream(iterator);
 
     // Before creating the sourceDocsHeader, deduplicate documents by ID
     // Create a Map to deduplicate by ID
@@ -121,7 +143,7 @@ If you don't know the answer, be honest and offer to help find the information o
     });
 
     // Return the streaming response
-    return new StreamingTextResponse(stream, {
+    return new StreamingTextResponse(readableStream, {
       headers: {
         'x-conversation-id': id || 'default',
         'x-rag-used': ragContext ? 'true' : 'false',
