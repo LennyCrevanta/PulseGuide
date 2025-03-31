@@ -500,7 +500,9 @@ const ChatInterface = () => {
                       </span>
                     )}
                   </div>
-                  {msg.content}
+                  <div className="text-gray-800">
+                    {msg.content}
+                  </div>
                   
                   {(() => {
                     // Always display the AI generated badge for assistant messages
@@ -560,8 +562,16 @@ const ChatInterface = () => {
           <textarea
             value={input}
             onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (input.trim() && !isLoading) {
+                  handleSubmitWithStore(e as any);
+                }
+              }
+            }}
             placeholder="Ask me anything about your benefits..."
-            className="flex-1 resize-none border border-gray-300 rounded-md p-2"
+            className="flex-1 resize-none border border-gray-300 rounded-md p-2 text-gray-800"
             rows={2}
             disabled={isLoading}
           />
